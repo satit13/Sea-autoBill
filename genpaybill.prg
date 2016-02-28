@@ -5,7 +5,7 @@ result = replaceInvoice_Paybilln()
 GenHeader = GenData('paybill')
 GenDetail = GenData('paybillsub')
 DO insertLocalPaybill 
-DO PostDataToBc
+*DO PostDataToBc
 
 PROCEDURE insertLocalPayBill 
 	SELECT bcpaybill 
@@ -26,14 +26,14 @@ LPARAMETERS tablename
 			SELECT paybilldocno as docno , DATE() as docdate,arcode,'autobill' as creatorcode,DATETIME() as createdatetime,SUM(billbalance) as sumofinvoice,;
 			0 as sumofdebitnote,0 as sumofcreditnote,0 as beforetaxamount,0 as taxamount,SUM(billbalance) as totalamount,'auto - bill ' as mydescription,;
 			creditday,0 as billstatus,DATE()+creditday as duedate,1 as iscompletesave,SUM(billbalance) as billtemporary ;
-			FROM invoice ;
+			FROM invoice WHERE selected = 1 ;
 			GROUP BY paybilldocno ,arcode,creditday ;
 			INTO CURSOR bcpaybill_temp
 		CASE ALLTRIM(UPPER(tablename))='PAYBILLSUB'
 			SELECT paybilldocno as docno, DATE() as docdate,arcode,docdate as invoicedate,docno as invoiceno , billbalance as invbalance ,;
 				billbalance as payamount,billbalance as  paybalance,billbalance as homeamount, 'auto - bill detail' as mydescription,0 as linenumber,;
 				0 as billtype ;
-				FROM invoice ;
+				FROM invoice WHERE selected = 1 ;
 				INTO CURSOR bcpaybillsub_temp
 				
 		otherwise 
@@ -146,23 +146,29 @@ ENDFUNC
 FUNCTION replaceInvoice_Paybilln
 	maxno = getmaxno(ALLTRIM(config.pbprefix))
 	lcdocno =  gennexno(ALLTRIM(config.pbprefix),maxno )
-
 	CurAr = ALLTRIM(invoice.arcode)
 
 	SELECT invoice 
+	SET FILTER TO selected = 1
 	GO TOP 
-
 	DO WHILE !EOF()
-		IF ALLTRIM(arcode)<> CurAr  && chance number paybill for arcode change
-			CurAr = ALLTRIM(invoice.arcode)
-			maxno = maxno+1
-			lcdocno =  gennexno(ALLTRIM(config.pbprefix),maxno )
-		ENDIF 
-		replace invoice.paybilldocno  WITH lcdocno 
+	
+			IF ALLTRIM(arcode)<> CurAr  && chance number paybill for arcode change
+				CurAr = ALLTRIM(invoice.arcode)
+
+					maxno = maxno+1
+					lcdocno =  gennexno(ALLTRIM(config.pbprefix),maxno )
+
+			ENDIF 
+	*		IF invoice.selected = 1 
+				replace invoice.paybilldocno  WITH lcdocno 
+	*		ENDIF 
 		
 	SELECT invoice 
 	SKIP 
 	ENDDO 
+	SELECT invoice 
+		SET FILTER TO 
 	RETURN .t.
  ENDFUNC 
  
