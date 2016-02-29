@@ -39,7 +39,7 @@ FUNCTION   Insertdata
 				Tflage=1
 				NFlage=0
 			Case Type(Fields(initEnv)) = 'D'      && Datetime field
-				lcx="Nextchar=DTC("+Fields(initEnv)+")"
+				lcx="Nextchar=DTOC("+Fields(initEnv)+")"
 				Cflage=0
 				Tflage=1
 				NFlage=0

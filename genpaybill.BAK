@@ -160,9 +160,9 @@ FUNCTION replaceInvoice_Paybilln
 					lcdocno =  gennexno(ALLTRIM(config.pbprefix),maxno )
 
 			ENDIF 
-			IF invoice.selected = 1 
+	*		IF invoice.selected = 1 
 				replace invoice.paybilldocno  WITH lcdocno 
-			ENDIF 
+	*		ENDIF 
 		
 	SELECT invoice 
 	SKIP 
@@ -173,69 +173,73 @@ FUNCTION replaceInvoice_Paybilln
  ENDFUNC 
  
  
+ 
+ 
  PROCEDURE PostDataToBc
  && Posting bcpaybill , sub to BC Account by connect "dbconn"
  
  
-SET PROCEDURE TO insert.prg
- &&& Loop insert 
- IF !USED('bcpaybill')
- 	MESSAGEBOX('Not found data : bcpaybill table',16,'Error not found data!!')
- 	RETURN .f. 
- ENDIF 
-  IF !USED('bcpaybillsub')
- 	MESSAGEBOX('Not found data : bcpaybillsub table',16,'Error not found data!!')
- 	RETURN .f. 
- ENDIF 
- connChk = SQLTABLES(dbconn, "'VIEW', 'SYSTEM TABLE'", "mydbresult")
- IF connchk <0 
- 	DBConn = -1
-	SqlSetProp( 0 , 'DispLogin' , 3 ) 
-	strconn = "driver=SQL Server;server="+ALLTRIM(config.servername)+";uid="+allt(config.username)+";"+;
-						"pwd="+ALLTRIM(config.password)+";database="+ALLTRIM(config.databasename)
-						MESSAGEBOX(strconn)
-					
-	DBConn = SQLSTRINGCONNECT(strconn)
- ENDIF 
- lccommand = "set dateformat dmy "
- =SQLEXEC(dbconn,lccommand)
- && begin send data 
- SELECT bcpaybill 
- GO TOP 
- DO WHILE !EOF()
- 	WAIT WINDOW 'send data to bc : '+ALLTRIM(bcpaybill.docno) nowa
- 	lcdocno = ALLTRIM(bcpaybill.docno) 
- 	lccommand = "delete bcpaybill where docno = '"+lcdocno+"'"
- 	result=SQLEXEC(dbconn,lccommand)
- 	lccommand = "delete bcpaybillsub where docno = '"+lcdocno+"'"
- 	result=SQLEXEC(dbconn,lccommand)
- 	
- 	
- 	
- 	result = insertdata()   && insert bcpaybill 
- 	IF !result 
- 		DO errhand
- 	ENDIF 
- 	
-	 	SELECT bcpaybillsub   && Insert Detail table 
-	 	SEEK lcdocno 
-	 	DO WHILE ALLTRIM(bcpaybillsub.docno) == ALLTRIM(lcdocno) AND !EOF()
-	 		SELECT bcpaybillsub 
-	 		result = insertdata()   && insert bcpaybill 
-	 		
-		 	IF !result 
-		 		DO errhand
-		 	ELSE 
-		 		&& update invoice status 
-		 	ENDIF 
-	 		SKIP 
-
-	 	ENDDO 
-
+	SET PROCEDURE TO insert.prg
+	 &&& Loop insert 
+	 IF !USED('bcpaybill')
+	 	MESSAGEBOX('Not found data : bcpaybill table',16,'Error not found data!!')
+	 	RETURN .f. 
+	 ENDIF 
+	  IF !USED('bcpaybillsub')
+	 	MESSAGEBOX('Not found data : bcpaybillsub table',16,'Error not found data!!')
+	 	RETURN .f. 
+	 ENDIF 
+	 connChk = SQLTABLES(dbconn, "'VIEW', 'SYSTEM TABLE'", "mydbresult")
+	 IF connchk <0 
+	 	DBConn = -1
+		SqlSetProp( 0 , 'DispLogin' , 3 ) 
+		strconn = "driver=SQL Server;server="+ALLTRIM(config.servername)+";uid="+allt(config.username)+";"+;
+							"pwd="+ALLTRIM(config.password)+";database="+ALLTRIM(config.databasename)
+							MESSAGEBOX(strconn)
+						
+		DBConn = SQLSTRINGCONNECT(strconn)
+	 ENDIF 
+	 lccommand = "set dateformat dmy "
+	 =SQLEXEC(dbconn,lccommand)
+	 && begin send data 
+	 SELECT bcpaybill 
+	 GO TOP 
+	 DO WHILE !EOF()
+	 	WAIT WINDOW 'send data to bc : '+ALLTRIM(bcpaybill.docno) nowa
+	 	lcdocno = ALLTRIM(bcpaybill.docno) 
+	 	lccommand = "delete bcpaybill where docno = '"+lcdocno+"'"
+	 	result=SQLEXEC(dbconn,lccommand)
+	 	lccommand = "delete bcpaybillsub where docno = '"+lcdocno+"'"
+	 	result=SQLEXEC(dbconn,lccommand)
 	 	
- 	SELECT bcpaybill 
- 	SKIP 
- 	
- ENDDO 
- 
+	 	
+	 	
+	 	result = insertdata()   && insert bcpaybill 
+	 	IF !result 
+	 		DO errhand
+	 	ENDIF 
+	 	
+		 	SELECT bcpaybillsub   && Insert Detail table 
+		 	SEEK lcdocno 
+		 	DO WHILE ALLTRIM(bcpaybillsub.docno) == ALLTRIM(lcdocno) AND !EOF()
+		 		SELECT bcpaybillsub 
+		 		result = insertdata()   && insert bcpaybill 
+		 		
+			 	IF !result 
+			 		DO errhand
+			 	ELSE 
+			 		&& update invoice status 
+			 		lccommand = "update bcarinvoice set paybillstatus =1 , paybillamount = 0 where docno = '"+ALLTRIM(bcpaybill.invoiceno)+"'"
+			 		ivUpdate=SQLEXEC(dbconn,lccommand)
+			 	ENDIF 
+		 		SKIP 
+
+		 	ENDDO 
+
+		 	
+	 	SELECT bcpaybill 
+	 	SKIP 
+	 	
+	 ENDDO 
+ 	MESSAGEBOX('Send to BC Account Competed',64,'Completed')
  ENDPROC 

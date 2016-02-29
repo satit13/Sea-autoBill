@@ -88,7 +88,7 @@ FUNCTION   Insertdata
 		ENDIF 
 	Endfor
 	lccommand=lccommand+lFiled+" )"
-	MESSAGEBOX(lccommand)
+	*MESSAGEBOX(lccommand)
 	result=SQLEXEC(dbconn,lccommand)
 		*IF ALLTRIM(UPPER(alias())) = 'VATOUT'
 			*MESSAGEBOX(lccommand)
