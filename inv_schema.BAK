@@ -1,0 +1,33 @@
+
+CREATE TABLE bcarinvoice (;
+	docno c(30),;
+	docdate d DEFAULT DATE(),;
+	taxno c(30),;
+	taxtype int  DEFAULT 0,;
+	arcode c(30) ,;
+	arname c(100),;
+	araddress c(100),;
+	creditday int DEFAULT 0,;
+	duedate d default DATE(),;
+	salecode c(30),;
+	taxrate n(4,2),;
+	isconfirm int DEFAULT  0,;
+	mydescription c(100),;
+	billtype int DEFAULT 1,;
+	sumofitemamount n(15,2),;
+	discountamount n(15,2),;
+	afterdiscount n(15,2),;
+	befortaxamount n(15,2),;
+	taxamount n(15,2),;
+	totalamount n(15,2),;
+	excepttaxamount n(15,2),;
+	netdebtamount n(15,2),;
+	homeamount n(15,2),;
+	glformat c(10),;
+	iscancel int default 0,;
+	iscompletesave int default 0,;
+	ispostgl int default 0,;
+	paybillamount n(15,2),;
+	billtemporary n(15,2),;
+	ceatorcode c(30),;
+	createdatetime d )
