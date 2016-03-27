@@ -95,8 +95,13 @@ ENDFUNC
 FUNCTION getmaxno
 	lpara	keyprefix   && prefixword + yy+mm+'-'
 	
-	
-	lccommand = "select CAST(max(RIGHT(RTRIM(docno),4)) as integer) as maxdocno from bcpaybill where docno like '%"+keyprefix+"%'"
+	 && generate pattern prefix document 	
+	  lcmonth = ALLTRIM(STR(month(DATE())))
+	  lcmonth = IIF(LEN(lcmonth)=1,'0'+lcmonth,lcmonth)
+	  lcyear  = IIF(YEAR(DATE()) < 2500, right(ALLTRIM(STR(YEAR(DATE())+543)),2),right(ALLTRIM(STR(YEAR(DATE()))),2))
+	  lcDocKey = ALLTRIM(keyprefix)+lcyear+lcmonth+'-'
+	  
+	lccommand = "select CAST(max(RIGHT(RTRIM(docno),4)) as integer) as maxdocno from bcpaybill where docno like '%"+lcDocKey+"%'"
 	
 	result = SQLEXEC(dbconn,lccommand , 'current_docno')
 	SELECT current_docno
