@@ -3,6 +3,8 @@
  CLEAR ALL memory 
  
  PUBLIC DEFAULT_DIR ,dbconn1,dbconn2,gsShortDate
+ 
+ 
  LOCAL lcsys16,lcprogram,lcpath,lcolddir
 	lcsys16=SYS(16,1)
 	lcolddir=(SYS(5)+CURDIR())

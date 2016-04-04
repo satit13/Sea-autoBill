@@ -1,12 +1,12 @@
 *       *********************************************************
 *       *                                                         
-*       * 29/02/2016             MAIN.MPR               12:31:08  
+*       * 04/04/2016             MAIN.MPR               09:34:17  
 *       *                                                         
 *       *********************************************************
 *       *                                                         
-*       * satit                                                   
+*       * Author's Name                                           
 *       *                                                         
-*       * Copyright (C) 2016 extensionsoft.biz                    
+*       * Copyright (C) 2016 Company Name                         
 *       * Address                                                 
 *       * City,     Zip                                           
 *       *                                                         
@@ -26,13 +26,16 @@
 SET SYSMENU TO
 SET SYSMENU AUTOMATIC
 
-DEFINE PAD _4ks0qtze4 OF _MSYSMENU PROMPT "File" COLOR SCHEME 3 ;
+DEFINE PAD _4lr0kijx3 OF _MSYSMENU PROMPT "File" COLOR SCHEME 3 ;
 	KEY ALT+F, ""
-DEFINE PAD _4ks0qtze5 OF _MSYSMENU PROMPT "照蒪й宋埧" COLOR SCHEME 3
-DEFINE PAD _4ks0qtze6 OF _MSYSMENU PROMPT "照 Invoice" COLOR SCHEME 3
-ON PAD _4ks0qtze4 OF _MSYSMENU ACTIVATE POPUP file
-ON SELECTION PAD _4ks0qtze5 OF _MSYSMENU ;
-	DO _4ks0qtze7 ;
+DEFINE PAD _4lr0kijx4 OF _MSYSMENU PROMPT "照蒪й宋埧" COLOR SCHEME 3
+DEFINE PAD _4lr0kijx5 OF _MSYSMENU PROMPT "照 Invoice" COLOR SCHEME 3
+ON PAD _4lr0kijx3 OF _MSYSMENU ACTIVATE POPUP file
+ON SELECTION PAD _4lr0kijx4 OF _MSYSMENU ;
+	DO _4lr0kijx6 ;
+	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
+ON SELECTION PAD _4lr0kijx5 OF _MSYSMENU ;
+	DO _4lr0kijx7 ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 
 DEFINE POPUP file MARGIN RELATIVE SHADOW COLOR SCHEME 4
@@ -40,19 +43,19 @@ DEFINE BAR 1 OF file PROMPT "Login"
 DEFINE BAR 2 OF file PROMPT "Config"
 DEFINE BAR 3 OF file PROMPT "Exit"
 ON SELECTION BAR 1 OF file ;
-	DO _4ks0qtze8 ;
+	DO _4lr0kijxi ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 ON SELECTION BAR 2 OF file ;
-	DO _4ks0qtze9 ;
+	DO _4lr0kijxj ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 ON SELECTION BAR 3 OF file ;
-	DO _4ks0qtzea ;
+	DO _4lr0kijxk ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4KS0QTZE7  ON SELECTION PAD                            
+*       * _4LR0KIJX6  ON SELECTION PAD                            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -63,61 +66,80 @@ ON SELECTION BAR 3 OF file ;
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4ks0qtze7
+PROCEDURE _4lr0kijx6
 DO FORM 01-invoice_select NAME BI
 
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4KS0QTZE8  ON SELECTION BAR 1 OF POPUP file            
+*       * _4LR0KIJX7  ON SELECTION PAD                            
+*       *                                                         
+*       * Procedure Origin:                                       
+*       *                                                         
+*       * From Menu:  MAIN.MPR,            Record:    9           
+*       * Called By:  ON SELECTION PAD                            
+*       * Prompt:     照 Invoice                                  
+*       * Snippet:    2                                           
+*       *                                                         
+*       *********************************************************
+*
+PROCEDURE _4lr0kijx7
+DO FORM 02-invoice_gen.scx
+
+
+
+
+*       *********************************************************
+*       *                                                         
+*       * _4LR0KIJXI  ON SELECTION BAR 1 OF POPUP file            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
 *       * From Menu:  MAIN.MPR,            Record:    5           
 *       * Called By:  ON SELECTION BAR 1 OF POPUP file            
 *       * Prompt:     Login                                       
-*       * Snippet:    2                                           
+*       * Snippet:    3                                           
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4ks0qtze8
+PROCEDURE _4lr0kijxi
 DO FORM "00-login"
 
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4KS0QTZE9  ON SELECTION BAR 2 OF POPUP file            
+*       * _4LR0KIJXJ  ON SELECTION BAR 2 OF POPUP file            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
 *       * From Menu:  MAIN.MPR,            Record:    6           
 *       * Called By:  ON SELECTION BAR 2 OF POPUP file            
 *       * Prompt:     Config                                      
-*       * Snippet:    3                                           
+*       * Snippet:    4                                           
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4ks0qtze9
+PROCEDURE _4lr0kijxj
 DO FORM "04-config"
 
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4KS0QTZEA  ON SELECTION BAR 3 OF POPUP file            
+*       * _4LR0KIJXK  ON SELECTION BAR 3 OF POPUP file            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
 *       * From Menu:  MAIN.MPR,            Record:    7           
 *       * Called By:  ON SELECTION BAR 3 OF POPUP file            
 *       * Prompt:     Exit                                        
-*       * Snippet:    4                                           
+*       * Snippet:    5                                           
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4ks0qtzea
+PROCEDURE _4lr0kijxk
 SET SYSMENU TO defa
 CLEAR EVENTS
 

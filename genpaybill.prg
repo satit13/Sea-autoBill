@@ -85,7 +85,7 @@ FUNC gennexno
   
   lc_nextno = lcDocKey+zero_prefix+ALLTRIM(STR(ln_nextno))
   
- && MESSAGEBOX(lc_nextno )
+ && MESSAGEBOX(lc_nextno )f
  
   RETURN lc_nextno 
 ENDFUNC
@@ -93,6 +93,9 @@ ENDFUNC
 
 
 FUNCTION getmaxno
+
+** return current max docno from prefix parameter
+
 	lpara	keyprefix   && prefixword + yy+mm+'-'
 	
 	 && generate pattern prefix document 	

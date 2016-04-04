@@ -93,6 +93,9 @@ ENDFUNC
 
 
 FUNCTION getmaxno
+
+** return current max docno from prefix parameter
+
 	lpara	keyprefix   && prefixword + yy+mm+'-'
 	
 	 && generate pattern prefix document 	
@@ -154,7 +157,7 @@ FUNCTION replaceInvoice_Paybilln
 	CurAr = ALLTRIM(invoice.arcode)
 
 	SELECT invoice 
-	SET FILTER TO selected = 1w
+	SET FILTER TO selected = 1
 	GO TOP 
 	DO WHILE !EOF()
 	
