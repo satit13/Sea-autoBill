@@ -1,12 +1,12 @@
 *       *********************************************************
 *       *                                                         
-*       * 04/04/2016             MAIN.MPR               09:34:17  
+*       * 05/04/2016             MAIN.MPR               14:42:43  
 *       *                                                         
 *       *********************************************************
 *       *                                                         
-*       * Author's Name                                           
+*       * satit                                                   
 *       *                                                         
-*       * Copyright (C) 2016 Company Name                         
+*       * Copyright (C) 2016 extensionsoft.biz                    
 *       * Address                                                 
 *       * City,     Zip                                           
 *       *                                                         
@@ -26,16 +26,16 @@
 SET SYSMENU TO
 SET SYSMENU AUTOMATIC
 
-DEFINE PAD _4lr0kijx3 OF _MSYSMENU PROMPT "File" COLOR SCHEME 3 ;
+DEFINE PAD _4ls0vj72m OF _MSYSMENU PROMPT "File" COLOR SCHEME 3 ;
 	KEY ALT+F, ""
-DEFINE PAD _4lr0kijx4 OF _MSYSMENU PROMPT "∑”„∫«“ß∫‘≈" COLOR SCHEME 3
-DEFINE PAD _4lr0kijx5 OF _MSYSMENU PROMPT "∑” Invoice" COLOR SCHEME 3
-ON PAD _4lr0kijx3 OF _MSYSMENU ACTIVATE POPUP file
-ON SELECTION PAD _4lr0kijx4 OF _MSYSMENU ;
-	DO _4lr0kijx6 ;
+DEFINE PAD _4ls0vj72n OF _MSYSMENU PROMPT "∑”„∫«“ß∫‘≈" COLOR SCHEME 3
+DEFINE PAD _4ls0vj72o OF _MSYSMENU PROMPT "∑” Invoice" COLOR SCHEME 3
+ON PAD _4ls0vj72m OF _MSYSMENU ACTIVATE POPUP file
+ON SELECTION PAD _4ls0vj72n OF _MSYSMENU ;
+	DO _4ls0vj72p ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
-ON SELECTION PAD _4lr0kijx5 OF _MSYSMENU ;
-	DO _4lr0kijx7 ;
+ON SELECTION PAD _4ls0vj72o OF _MSYSMENU ;
+	DO _4ls0vj72q ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 
 DEFINE POPUP file MARGIN RELATIVE SHADOW COLOR SCHEME 4
@@ -43,19 +43,19 @@ DEFINE BAR 1 OF file PROMPT "Login"
 DEFINE BAR 2 OF file PROMPT "Config"
 DEFINE BAR 3 OF file PROMPT "Exit"
 ON SELECTION BAR 1 OF file ;
-	DO _4lr0kijxi ;
+	DO _4ls0vj72r ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 ON SELECTION BAR 2 OF file ;
-	DO _4lr0kijxj ;
+	DO _4ls0vj72s ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 ON SELECTION BAR 3 OF file ;
-	DO _4lr0kijxk ;
+	DO _4ls0vj72t ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4LR0KIJX6  ON SELECTION PAD                            
+*       * _4LS0VJ72P  ON SELECTION PAD                            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -66,14 +66,14 @@ ON SELECTION BAR 3 OF file ;
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4lr0kijx6
+PROCEDURE _4ls0vj72p
 DO FORM 01-invoice_select NAME BI
 
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4LR0KIJX7  ON SELECTION PAD                            
+*       * _4LS0VJ72Q  ON SELECTION PAD                            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -84,15 +84,17 @@ DO FORM 01-invoice_select NAME BI
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4lr0kijx7
-DO FORM 02-invoice_gen.scx
+PROCEDURE _4ls0vj72q
+DO FORM invGen NAME invGen
+
+
 
 
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4LR0KIJXI  ON SELECTION BAR 1 OF POPUP file            
+*       * _4LS0VJ72R  ON SELECTION BAR 1 OF POPUP file            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -103,14 +105,14 @@ DO FORM 02-invoice_gen.scx
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4lr0kijxi
+PROCEDURE _4ls0vj72r
 DO FORM "00-login"
 
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4LR0KIJXJ  ON SELECTION BAR 2 OF POPUP file            
+*       * _4LS0VJ72S  ON SELECTION BAR 2 OF POPUP file            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -121,14 +123,14 @@ DO FORM "00-login"
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4lr0kijxj
+PROCEDURE _4ls0vj72s
 DO FORM "04-config"
 
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4LR0KIJXK  ON SELECTION BAR 3 OF POPUP file            
+*       * _4LS0VJ72T  ON SELECTION BAR 3 OF POPUP file            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -139,7 +141,7 @@ DO FORM "04-config"
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4lr0kijxk
+PROCEDURE _4ls0vj72t
 SET SYSMENU TO defa
 CLEAR EVENTS
 

@@ -4,21 +4,42 @@
 
 
 SET PROCEDURE TO lib.prg
-
 DO setEnv 
 DO setDefaultWorkFolder
 IF  !getLogin() 
 	MESSAGEBOX('Program  exiting...') 
 	RETURN 
 ENDIF 
+
+*!*	IF TYPE('invGen') = 'O'
+*!*		MESSAGEBOX('Progress bar update')
+*!*		
+*!*		invGen.pf_invoice.inVGEN.progressInvGen.max=100
+*!*		invGen.pf_invoice.inVGEN.progressInvGen.value=0
+*!*		invGen.pf_invoice.ActivePage=3
+*!*		
+*!*	ENDIF 
 DO getarlist
+
+
 DO genDocdateList   && Create docdate list by period count
+
+*!*	IF TYPE('invGen') = 'O'
+*!*		MESSAGEBOX('Progress bar update')
+*!*		
+*!*		invGen.pf_invoice.inVGEN.progressInvGen.max=100
+*!*		invGen.pf_invoice.inVGEN.progressInvGen.value=40
+*!*		invGen.pf_invoice.ActivePage=3
+*!*		
+*!*	ENDIF 
+
+
 DO genInvoice   && Create invoice 
 
+DO postInvoiceToBC && send to bcAccount
 
 
-
-
+*** 
 
 PROCEDURE genDocdateList 
 	lnPeriodCount = tmpinvoice.period 
@@ -26,6 +47,11 @@ PROCEDURE genDocdateList
 	CREATE CURSOR Docdatelist (period int,docdate date,duedate date,docprefix char(20),curno int)
 
 	startdocdate =  tmpinvoice.firstPerioddate
+	
+	IF tmpinvoice.docdateby =1  && 1 = Lastday , 2 = every ... of month
+ 
+		startdocdate = getDateByPeriod(startdocdate,'01')
+	ENDIF 
 	
 	FOR i = 1 TO lnPeriodCount && Loop for period 
 	
@@ -39,12 +65,14 @@ PROCEDURE genDocdateList
 		ENDIF 
 		
 		&& get max by period 
-		
-		
-		
+	
 	ENDFOR 
+	
+	
+	
+	
 	IF tmpinvoice.docdateby =1  && replace for gen lastdate 
-		REPLACE ALL docdate WITH docdate-1 FOR period > 1 
+		REPLACE ALL docdate WITH docdate-1   &&FOR period > 1 
 	ENDIF 
 
 
@@ -67,7 +95,7 @@ PROCEDURE genDocdateList
 			
 		
 		lcCurdocno = lcPrefix+lnDBCurNo
-		MESSAGEBOX(lcCurdocno )
+		*MESSAGEBOX(lcCurdocno )
 		SELECT docdatelist 
 		SKIP 
 	ENDDO 
@@ -89,6 +117,17 @@ ENDFUNC
 
 
 PROCEDURE setEnv
+	
+	IF USED('arlist')
+		SELECT arlist 
+		USE 
+	ENDIF 
+	
+	IF USED('Docdatelist')
+		SELECT Docdatelist  
+		USE 
+	ENDIF 
+
 	IF !USED('tmpinvoice')
 		use tmpinvoice in 0 share 
 	ENDIF 
@@ -100,41 +139,36 @@ PROCEDURE setEnv
 	ENDIF 
 	
 	IF !USED('bcarinvoice')
-		USE bcarinvoice IN 0 EXCLUSIVE
+		USE bcarinvoice IN 0 excl 
 	ENDIF 
 	
 	IF !USED('bcarinvoicesub')
-		USE bcarinvoicesub IN 0 EXCLUSIVE 
+		USE bcarinvoicesub IN 0 excl 
 	ENDIF 
 	
 	IF !USED('config') 
 		USE config IN 0 SHARED 
 	ENDIF 
+
 	
-	IF USED('arlist')
-		SELECT arlist 
-		USE 
-	ENDIF 
-	
-	IF USED('Docdatelist')
-		SELECT Docdatelist  
-		USE 
-	ENDIF 
-	
+	SELECT bcarinvoicesub 
+	zap 
+	SET ORDER TO TAG Docno  IN Bcarinvoicesub
 	
 	SELECT bcarinvoice 
-	ZAP 
-	SELECT bcarinvoicesub 
-	ZAP 
+	ZAP
+	SET RELATION TO 
+	SET RELATION TO docno INTO Bcarinvoicesub ADDITIVE
 	
 ENDPROC 
 
-
+**** Get ARList from ar condition
 PROCEDURE getArList 
 		arcode1 = ALLTRIM(tmpinvoice.arcode1)
 		arcode2 = ALLTRIM(tmpinvoice.arcode2)
-		lccommand = "select code,name1,billaddress,billcredit from bcar where code between '"+arcode1+"' and '"+arcode2+"'"
+		lccommand = "select code,ISNULL(name1,'') as name1,ISNULL(billaddress,'') as billaddress,ISNULL(billcredit,0) as billcredit from bcar where code between '"+arcode1+"' and '"+arcode2+"'"
 		*MESSAGEBOX(lccommand)
+		
 		result = SQLEXEC(dbconn,lccommand,'arlist')
 		
 ENDPROC 
@@ -172,14 +206,18 @@ PROCEDURE genInvoice
 	
 
 	SELECT docdatelist &&  Peroid by docdate list
+
 	GO TOP 
 	DO WHILE !EOF()
 		
+
 		SELECT arlist   &&& Loop gen by arcode list 
 		GO TOP 
 		DO WHILE !EOF()
 			
 			WAIT WINDOW RECNO() NOWAIT  
+	
+			
 			** GEN INVOICE 
 			SELECT bcarinvoicex
 			 	SCATTER MEMVAR 
@@ -187,8 +225,25 @@ PROCEDURE genInvoice
 				APPEND BLANK
 				GATHER MEMVAR
 				
+				 && Gen next number 	
+					  ln_nextno = docdatelist.curno+1
+					  REPLACE docdatelist.curno WITH ln_nextno
+					   DO CASE  
+					  	CASE LEN(ALLTRIM(STR(ln_nextno)))=1 
+					  		zero_prefix ='000'
+					  	CASE LEN(ALLTRIM(STR(ln_nextno)))=2 
+					  		zero_prefix ='00'	
+					  	CASE LEN(ALLTRIM(STR(ln_nextno)))=3
+					  		zero_prefix ='0'	
+					  	OTHERWISE 
+					  		zero_prefix =''
+					  ENDCASE 
+					  
+					  lc_nextno = ALLTRIM(docdatelist.docprefix)+zero_prefix+ALLTRIM(STR(ln_nextno))
+  				
+				
 				 
-				*REPLACE docno WITH 
+				REPLACE docno WITH lc_nextno 
 				REPLACE arcode WITH ALLTRIM(arlist.code)
 				replace arname WITH ALLTRIM(arlist.name1)
 				replace araddress WITH ALLTRIM(arlist.billaddress)
@@ -202,18 +257,23 @@ PROCEDURE genInvoice
 			
 			** GEN INVOICESUB 
 			SELECT bcarinvoicesubx
-			 	SCATTER MEMVAR 
-			SELECT bcarinvoicesub 
-				APPEND BLANK
-				GATHER MEMVAR
-				
-				 
-				*REPLACE docno WITH 
-				REPLACE arcode WITH ALLTRIM(arlist.code)
-				*replace arname WITH ALLTRIM(arlist.name1)
-				*replace araddress WITH ALLTRIM(arlist.billaddress)
-				REPLACE docdate WITH docdatelist.docdate 
-				  
+			GO TOP 
+				DO WHILE !EOF()
+					SELECT bcarinvoicesubx
+			 		SCATTER MEMVAR 
+					SELECT bcarinvoicesub 
+					APPEND BLANK
+					GATHER MEMVAR
+					
+					REPLACE docno WITH lc_nextno 
+					*REPLACE docno WITH 
+					REPLACE arcode WITH ALLTRIM(arlist.code)
+					*replace arname WITH ALLTRIM(arlist.name1)
+					*replace araddress WITH ALLTRIM(arlist.billaddress)
+					REPLACE docdate WITH docdatelist.docdate 
+					SELECT bcarinvoicesubx
+					SKIP 
+				ENDDO 		  
 				
 			SELECT arlist 
 			SKIP 
@@ -223,3 +283,93 @@ PROCEDURE genInvoice
 		SKIP 1 
 	ENDDO 
 ENDPROC 
+
+
+
+
+FUNCTION getmaxno
+
+** return current max docno from prefix parameter
+
+	lpara	keyprefix   && prefixword + yy+mm+'-'
+  
+	lccommand = "select CAST(max(RIGHT(RTRIM(docno),4)) as integer) as maxdocno from bcarinvoice where docno like '%"+keyprefix+"%'"
+	
+	result = SQLEXEC(dbconn,lccommand , 'current_docno')
+	SELECT current_docno
+	IF ISNULL(maxdocno) 
+		lno  = 0
+	ELSE 
+		lno = maxdocno 
+	ENDIF 
+	RETURN lno
+ENDFUNC 
+
+
+
+
+
+
+**********************************
+ 
+ PROCEDURE PostInvoiceToBc
+ && Posting bcarinvoice , sub to BC Account by connect "dbconn"
+ 
+ 	SELECT bcarinvoice
+ 	
+	SET PROCEDURE TO insert.prg
+    lccommand = "set dateformat dmy "
+	 =SQLEXEC(dbconn,lccommand)
+	 && begin send data 
+	 SELECT bcarinvoice 
+	 GO TOP 
+	 DO WHILE !EOF()
+	 	WAIT WINDOW 'send data to bc : '+ALLTRIM(bcarinvoice.docno) nowa
+	 	lcdocno = ALLTRIM(bcarinvoice.docno) 
+	 	lccommand = "delete bcarinvoice where docno = '"+lcdocno+"'"
+	 	&&MESSAGEBOX(lccommand)
+	 	result=SQLEXEC(dbconn,lccommand)
+
+	 	lccommand = "delete bcarinvoicesub where docno = '"+lcdocno+"'"
+	 	&&MESSAGEBOX(lccommand)
+	 	result=SQLEXEC(dbconn,lccommand)
+
+	 	lccommand = "delete bcoutputtax where docno = '"+lcdocno+"'"
+	 	result=SQLEXEC(dbconn,lccommand)
+	 	&&MESSAGEBOX(lccommand)
+	 	
+	 	
+	 	
+	 	result = insertdata()   && insert bcpaybill 
+	 	IF !result 
+	 			&&MESSAGEBOX('insert bcarinvoice: '+lcdocno)
+	 		DO errhand
+	 	ENDIF 
+	 	
+	 	
+	 		**  insert bcarinvoicesub 
+		 	SELECT bcarinvoicesub  && Insert Detail table 
+		 	SEEK lcdocno 
+		 	DO WHILE ALLTRIM(bcarinvoicesub.docno) == ALLTRIM(lcdocno) AND !EOF()
+		 		SELECT bcarinvoicesub
+		 		result = insertdata()   && insert bcpaybill 
+		 		
+			 	IF !result 
+			 		&&MESSAGEBOX('insert bcarinvoicesub: '+lcdocno)
+			 		DO errhand
+			 	ELSE 
+			 		&& update invoice status 
+			 		*lccommand = "update bcarinvoice set paybillstatus =1 , paybillamount = 0 where docno = '"+ALLTRIM(bcpaybillsub.invoiceno)+"'"
+			 		*ivUpdate=SQLEXEC(dbconn,lccommand)
+			 	ENDIF 
+		 		SKIP 
+
+		 	ENDDO 
+
+		 	
+	 	SELECT bcarinvoice
+	 	SKIP 
+	 	
+	 ENDDO 
+ 	MESSAGEBOX('Send to BC Account Competed',64,'Completed')
+ ENDPROC 
