@@ -11,28 +11,9 @@ IF  !getLogin()
 	RETURN 
 ENDIF 
 
-*!*	IF TYPE('invGen') = 'O'
-*!*		MESSAGEBOX('Progress bar update')
-*!*		
-*!*		invGen.pf_invoice.inVGEN.progressInvGen.max=100
-*!*		invGen.pf_invoice.inVGEN.progressInvGen.value=0
-*!*		invGen.pf_invoice.ActivePage=3
-*!*		
-*!*	ENDIF 
 DO getarlist
 
-
 DO genDocdateList   && Create docdate list by period count
-
-*!*	IF TYPE('invGen') = 'O'
-*!*		MESSAGEBOX('Progress bar update')
-*!*		
-*!*		invGen.pf_invoice.inVGEN.progressInvGen.max=100
-*!*		invGen.pf_invoice.inVGEN.progressInvGen.value=40
-*!*		invGen.pf_invoice.ActivePage=3
-*!*		
-*!*	ENDIF 
-
 
 DO genInvoice   && Create invoice 
 
@@ -139,11 +120,15 @@ PROCEDURE setEnv
 	ENDIF 
 	
 	IF !USED('bcarinvoice')
-		USE bcarinvoice IN 0 excl 
+		USE bcarinvoice IN 0 EXCLUSIVE 
 	ENDIF 
 	
 	IF !USED('bcarinvoicesub')
-		USE bcarinvoicesub IN 0 excl 
+		USE bcarinvoicesub IN 0 EXCLUSIVE 
+	ENDIF 
+	
+	IF !USED('bcoutputtax')
+		USE bcoutputtax IN 0 EXCLUSIVE 
 	ENDIF 
 	
 	IF !USED('config') 
@@ -155,10 +140,17 @@ PROCEDURE setEnv
 	zap 
 	SET ORDER TO TAG Docno  IN Bcarinvoicesub
 	
+	SELECT bcoutputtax 
+	ZAP 
+	SET ORDER TO tag docno IN bcoutputtax 
+	
 	SELECT bcarinvoice 
 	ZAP
 	SET RELATION TO 
 	SET RELATION TO docno INTO Bcarinvoicesub ADDITIVE
+	SET RELATION TO docno INTO BcOutputtax ADDITIVE
+	
+	
 	
 ENDPROC 
 
@@ -221,6 +213,10 @@ PROCEDURE genInvoice
 			** GEN INVOICE 
 			SELECT bcarinvoicex
 			 	SCATTER MEMVAR 
+			 	lnBeforetaxamount = bcarinvoicex.beforetaxamount 
+			 	lnTaxamount = bcarinvoicex.taxamount 
+			 	lnExcepttaxamount = bcarinvoicex.excepttaxamount
+
 			SELECT bcarinvoice 
 				APPEND BLANK
 				GATHER MEMVAR
@@ -278,7 +274,21 @@ PROCEDURE genInvoice
 					SELECT bcarinvoicesubx
 					SKIP 
 				ENDDO 		  
-				
+		
+		
+			** Gen Outputtax 
+				SELECT bcoutputtax 
+				APPEND BLANK 
+				REPLACE docno WITH lc_nextno 
+				REPLACE taxno WITH lc_nextno 
+				REPLACE docdate WITH docdatelist.docdate 
+				REPLACE taxdate WITH docdatelist.docdate 
+				REPLACE beforetaxamount WITH lnBeforetaxamount 
+				REPLACE taxamount WITH lnTaxamount 
+				REPLACE excepttaxamount WITH lnExcepttaxamount 
+				REPLACE arcode WITH ALLTRIM(arlist.code)
+							
+
 			SELECT arlist 
 			SKIP 
 		ENDDO 
@@ -369,6 +379,29 @@ ENDFUNC
 		 		SKIP 
 
 		 	ENDDO 
+
+
+
+	 		**  insert bcoutputtax 
+		 	SELECT bcoutputtax && Insert Detail table 
+		 	SEEK lcdocno 
+		 	DO WHILE ALLTRIM(bcoutputtax .docno) == ALLTRIM(lcdocno) AND !EOF()
+		 		SELECT bcoutputtax 
+		 		result = insertdata()   && insert bcpaybill 
+		 		
+			 	IF !result 
+			 		&&MESSAGEBOX('insert bcoutputtax : '+lcdocno)
+			 		DO errhand
+			 	ELSE 
+			 		&& update invoice status 
+			 		*lccommand = "update bcarinvoice set paybillstatus =1 , paybillamount = 0 where docno = '"+ALLTRIM(bcpaybillsub.invoiceno)+"'"
+			 		*ivUpdate=SQLEXEC(dbconn,lccommand)
+			 	ENDIF 
+		 		SKIP 
+
+		 	ENDDO 
+
+
 
 		 	
 	 	SELECT bcarinvoice

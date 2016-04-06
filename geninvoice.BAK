@@ -139,11 +139,15 @@ PROCEDURE setEnv
 	ENDIF 
 	
 	IF !USED('bcarinvoice')
-		USE bcarinvoice IN 0 excl 
+		USE bcarinvoice IN 0 EXCLUSIVE 
 	ENDIF 
 	
 	IF !USED('bcarinvoicesub')
-		USE bcarinvoicesub IN 0 excl 
+		USE bcarinvoicesub IN 0 EXCLUSIVE 
+	ENDIF 
+	
+	IF !USED('bcoutputtax')
+		USE bcoutputtax IN 0 EXCLUSIVE 
 	ENDIF 
 	
 	IF !USED('config') 
@@ -155,10 +159,17 @@ PROCEDURE setEnv
 	zap 
 	SET ORDER TO TAG Docno  IN Bcarinvoicesub
 	
+	SELECT bcoutputtax 
+	ZAP 
+	SET ORDER TO tag docno IN bcoutputtax 
+	
 	SELECT bcarinvoice 
 	ZAP
 	SET RELATION TO 
 	SET RELATION TO docno INTO Bcarinvoicesub ADDITIVE
+	SET RELATION TO docno INTO BcOutputtax ADDITIVE
+	
+	
 	
 ENDPROC 
 
@@ -221,6 +232,10 @@ PROCEDURE genInvoice
 			** GEN INVOICE 
 			SELECT bcarinvoicex
 			 	SCATTER MEMVAR 
+			 	lnBeforetaxamount = bcarinvoicex.beforetaxamount 
+			 	lnTaxamount = bcarinvoicex.taxamount 
+			 	lnExcepttaxamount = bcarinvoicex.excepttaxamount
+
 			SELECT bcarinvoice 
 				APPEND BLANK
 				GATHER MEMVAR
@@ -244,6 +259,8 @@ PROCEDURE genInvoice
 				
 				 
 				REPLACE docno WITH lc_nextno 
+				REPLACE taxno WITH lc_nextno 
+				
 				REPLACE arcode WITH ALLTRIM(arlist.code)
 				replace arname WITH ALLTRIM(arlist.name1)
 				replace araddress WITH ALLTRIM(arlist.billaddress)
@@ -266,6 +283,8 @@ PROCEDURE genInvoice
 					GATHER MEMVAR
 					
 					REPLACE docno WITH lc_nextno 
+					REPLACE taxno WITH lc_nextno 
+					
 					*REPLACE docno WITH 
 					REPLACE arcode WITH ALLTRIM(arlist.code)
 					*replace arname WITH ALLTRIM(arlist.name1)
@@ -274,7 +293,21 @@ PROCEDURE genInvoice
 					SELECT bcarinvoicesubx
 					SKIP 
 				ENDDO 		  
-				
+		
+		
+			** Gen Outputtax 
+				SELECT bcoutputtax 
+				APPEND BLANK 
+				REPLACE docno WITH lc_nextno 
+				REPLACE taxno WITH lc_nextno 
+				REPLACE docdate WITH docdatelist.docdate 
+				REPLACE taxdate WITH docdatelist.docdate 
+				REPLACE beforetaxamount WITH lnBeforetaxamount 
+				REPLACE taxamount WITH lnTaxamount 
+				REPLACE excepttaxamount WITH lnExcepttaxamount 
+				REPLACE arcode WITH ALLTRIM(arlist.code)
+							
+
 			SELECT arlist 
 			SKIP 
 		ENDDO 
