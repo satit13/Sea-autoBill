@@ -1,6 +1,6 @@
 *       *********************************************************
 *       *                                                         
-*       * 05/04/2016             MAIN.MPR               14:42:43  
+*       * 06/04/2016             MAIN.MPR               12:36:27  
 *       *                                                         
 *       *********************************************************
 *       *                                                         
@@ -26,36 +26,39 @@
 SET SYSMENU TO
 SET SYSMENU AUTOMATIC
 
-DEFINE PAD _4ls0vj72m OF _MSYSMENU PROMPT "File" COLOR SCHEME 3 ;
+DEFINE PAD _4lt0r0tav OF _MSYSMENU PROMPT "File" COLOR SCHEME 3 ;
 	KEY ALT+F, ""
-DEFINE PAD _4ls0vj72n OF _MSYSMENU PROMPT "∑”„∫«“ß∫‘≈" COLOR SCHEME 3
-DEFINE PAD _4ls0vj72o OF _MSYSMENU PROMPT "∑” Invoice" COLOR SCHEME 3
-ON PAD _4ls0vj72m OF _MSYSMENU ACTIVATE POPUP file
-ON SELECTION PAD _4ls0vj72n OF _MSYSMENU ;
-	DO _4ls0vj72p ;
+DEFINE PAD _4lt0r0taw OF _MSYSMENU PROMPT "∑”„∫«“ß∫‘≈" COLOR SCHEME 3
+DEFINE PAD _4lt0r0tax OF _MSYSMENU PROMPT "∑” Invoice" COLOR SCHEME 3
+ON PAD _4lt0r0tav OF _MSYSMENU ACTIVATE POPUP file
+ON SELECTION PAD _4lt0r0taw OF _MSYSMENU ;
+	DO _4lt0r0tay ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
-ON SELECTION PAD _4ls0vj72o OF _MSYSMENU ;
-	DO _4ls0vj72q ;
+ON SELECTION PAD _4lt0r0tax OF _MSYSMENU ;
+	DO _4lt0r0taz ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 
 DEFINE POPUP file MARGIN RELATIVE SHADOW COLOR SCHEME 4
-DEFINE BAR 1 OF file PROMPT "Login"
-DEFINE BAR 2 OF file PROMPT "Config"
-DEFINE BAR 3 OF file PROMPT "Exit"
+DEFINE BAR 1 OF file PROMPT "Login" ;
+	KEY ALT+L, "ALT+L"
+DEFINE BAR 2 OF file PROMPT "Config" ;
+	KEY ALT+C, "ALT+C"
+DEFINE BAR 3 OF file PROMPT "Exit" ;
+	KEY ALT+X, "ALT+X"
 ON SELECTION BAR 1 OF file ;
-	DO _4ls0vj72r ;
+	DO _4lt0r0tb0 ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 ON SELECTION BAR 2 OF file ;
-	DO _4ls0vj72s ;
+	DO _4lt0r0tb1 ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 ON SELECTION BAR 3 OF file ;
-	DO _4ls0vj72t ;
+	DO _4lt0r0tb2 ;
 	IN LOCFILE("SEA-AUTOBILL\MAIN" ,"MPX;MPR|FXP;PRG" ,"WHERE is MAIN?")
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4LS0VJ72P  ON SELECTION PAD                            
+*       * _4LT0R0TAY  ON SELECTION PAD                            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -66,14 +69,14 @@ ON SELECTION BAR 3 OF file ;
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4ls0vj72p
+PROCEDURE _4lt0r0tay
 DO FORM 01-invoice_select NAME BI
 
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4LS0VJ72Q  ON SELECTION PAD                            
+*       * _4LT0R0TAZ  ON SELECTION PAD                            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -84,7 +87,7 @@ DO FORM 01-invoice_select NAME BI
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4ls0vj72q
+PROCEDURE _4lt0r0taz
 DO FORM invGen NAME invGen
 
 
@@ -94,7 +97,7 @@ DO FORM invGen NAME invGen
 
 *       *********************************************************
 *       *                                                         
-*       * _4LS0VJ72R  ON SELECTION BAR 1 OF POPUP file            
+*       * _4LT0R0TB0  ON SELECTION BAR 1 OF POPUP file            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -105,14 +108,14 @@ DO FORM invGen NAME invGen
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4ls0vj72r
+PROCEDURE _4lt0r0tb0
 DO FORM "00-login"
 
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4LS0VJ72S  ON SELECTION BAR 2 OF POPUP file            
+*       * _4LT0R0TB1  ON SELECTION BAR 2 OF POPUP file            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -123,14 +126,14 @@ DO FORM "00-login"
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4ls0vj72s
+PROCEDURE _4lt0r0tb1
 DO FORM "04-config"
 
 
 
 *       *********************************************************
 *       *                                                         
-*       * _4LS0VJ72T  ON SELECTION BAR 3 OF POPUP file            
+*       * _4LT0R0TB2  ON SELECTION BAR 3 OF POPUP file            
 *       *                                                         
 *       * Procedure Origin:                                       
 *       *                                                         
@@ -141,7 +144,7 @@ DO FORM "04-config"
 *       *                                                         
 *       *********************************************************
 *
-PROCEDURE _4ls0vj72t
+PROCEDURE _4lt0r0tb2
 SET SYSMENU TO defa
 CLEAR EVENTS
 
